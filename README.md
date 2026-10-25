@@ -1,98 +1,107 @@
 # Mini IoT Dashboard & Device Management Platform
 
-A full-stack MVP that monitors a (simulated) embedded sensor node in near real time and controls its relay/LED remotely.
+ระบบ Full Stack ตัวอย่าง (MVP) สำหรับติดตามค่าจากบอร์ดเซนเซอร์ IoT (จำลอง) แบบเกือบเรียลไทม์ และสั่งเปิด/ปิดรีเลย์หรือ LED จากระยะไกลผ่านหน้าเว็บ
 
-| Layer    | Stack                                              |
-| -------- | -------------------------------------------------- |
+| ส่วน     | เทคโนโลยี                                                     |
+| -------- | ------------------------------------------------------------- |
 | Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS 4, Recharts |
-| Backend  | Node.js, Express, TypeScript                       |
-| Database | MongoDB (Mongoose)                                 |
+| Backend  | Node.js, Express, TypeScript                                  |
+| Database | MongoDB (Mongoose)                                            |
 
-## Architecture
+## สถาปัตยกรรม
 
 ```
 ┌──────────────────┐   POST /telemetry (temp, humidity)   ┌──────────────────┐        ┌──────────┐
-│ Embedded board   │ ───────────────────────────────────▶ │  Express API     │ ─────▶ │ MongoDB  │
+│ บอร์ด Embedded    │ ───────────────────────────────────▶ │  Express API     │ ─────▶ │ MongoDB  │
 │ (simulator.ts /  │ ◀─────────────────────────────────── │  /api/v1/devices │ ◀───── │          │
 │  ESP32 firmware) │   201 ACK + { command: { status } }  └──────────────────┘        └──────────┘
 └──────────────────┘                                          ▲        │
-                                       PATCH /control (ON/OFF)│        │ GET /status (polling 2s)
+                                       PATCH /control (ON/OFF)│        │ GET /status (polling ทุก 2 วินาที)
                                                          ┌────┴────────▼────┐
                                                          │ Next.js Dashboard│
                                                          └──────────────────┘
 ```
 
-**Downlink via piggybacked ACK** — boards behind NAT or on battery typically can't hold an inbound connection.
-Instead of a broker, the desired relay state is returned in the telemetry response, so the board picks up
-commands on its next uplink. This is the same pattern used by many HTTP/CoAP-based IoT platforms.
+**ส่งคำสั่งกลับไปพร้อมคำตอบ (Piggybacked ACK)** — บอร์ดที่ใช้แบตเตอรี่หรืออยู่หลังเราเตอร์ (NAT) มักรับการเชื่อมต่อจากภายนอกไม่ได้
+ระบบนี้จึงไม่ใช้ message broker แต่ส่งสถานะรีเลย์ที่ต้องการกลับไปในคำตอบของ telemetry แทน
+บอร์ดจะได้รับคำสั่งในรอบถัดไปที่ส่งข้อมูลขึ้นมา ซึ่งเป็นรูปแบบเดียวกับที่แพลตฟอร์ม IoT แบบ HTTP/CoAP หลายเจ้าใช้
 
-## Project structure
+## โครงสร้างโปรเจกต์
 
 ```
 apps/
 ├── backend/src
-│   ├── config/        env + MongoDB connection
-│   ├── models/        Device, TelemetryLog (Mongoose schemas)
-│   ├── types/         API payload contracts
-│   ├── validators/    payload validation (type guards, sensor range checks)
-│   ├── services/      all database access
-│   ├── controllers/   HTTP request/response handling
+│   ├── config/        ตั้งค่า env + เชื่อมต่อ MongoDB
+│   ├── models/        Device, TelemetryLog (Mongoose schema)
+│   ├── types/         รูปแบบข้อมูล (contract) ของ API
+│   ├── validators/    ตรวจสอบ payload (type guard, ช่วงค่าของเซนเซอร์)
+│   ├── services/      ส่วนที่ติดต่อฐานข้อมูลทั้งหมด
+│   ├── controllers/   จัดการ HTTP request/response
 │   ├── routes/        /api/v1/devices
-│   ├── middleware/    error handling
-│   └── scripts/       simulator.ts — fake ESP32 + DHT22 node
+│   ├── middleware/    จัดการ error
+│   └── scripts/       simulator.ts — บอร์ดจำลอง ESP32 + DHT22
 └── frontend/src
-    ├── app/           Next.js App Router entry
-    ├── components/    Dashboard, SensorGauge, RelayToggle, TelemetryChart
-    ├── hooks/         useDeviceStatus (polling + optimistic toggle)
+    ├── app/           จุดเริ่มต้นของ Next.js App Router
+    ├── components/    Dashboard, BoardSimulation, SensorGauge, RelayToggle, TelemetryChart
+    ├── hooks/         useDeviceStatus (polling + toggle แบบ optimistic)
     ├── lib/           API client
-    └── types/         API types
+    └── types/         type ของ API
 ```
 
-## Getting started
+## เริ่มต้นใช้งาน
 
-Prerequisites: Node.js 20+, and MongoDB (local install, `docker compose up -d`, or a MongoDB Atlas URI).
+สิ่งที่ต้องมี: Node.js 20 ขึ้นไป และ MongoDB (ติดตั้งในเครื่อง, `docker compose up -d` หรือใช้ URI ของ MongoDB Atlas)
 
 ```bash
 npm install
 cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env.local
-npm run dev          # API on :4000, dashboard on :3000
-npm run simulate     # in a second terminal — starts the virtual board
+npm run dev          # API ที่พอร์ต 4000, Dashboard ที่พอร์ต 3000
+npm run simulate     # เปิดอีก terminal — เริ่มบอร์ดจำลอง
 ```
 
-Open http://localhost:3000. Toggle the relay: the simulator turns the "cooling fan" on and the temperature
-trend on the chart starts falling.
+เปิด http://localhost:3000 แล้วลองกดเปิดรีเลย์ บอร์ดจำลองจะเปิด "พัดลมระบายความร้อน"
+และกราฟอุณหภูมิจะเริ่มลดลง เมื่อปิดพัดลมอุณหภูมิจะค่อย ๆ กลับขึ้นไป
+
+## หน้า Dashboard
+
+- **เกจอุณหภูมิและความชื้น** — แสดงค่าล่าสุดจากเซนเซอร์
+- **Device simulation** — ภาพบอร์ดเคลื่อนไหวตรงกลางจอ (DHT22 → ESP32 → Relay → พัดลม)
+  แสดงการอ่านเซนเซอร์, การส่งข้อมูลผ่าน Wi-Fi, ก้านหน้าสัมผัสของรีเลย์ และพัดลมที่หมุน คลิกที่รีเลย์บนภาพเพื่อเปิด/ปิดได้
+- **สวิตช์ Relay / LED** — สั่งเปิด/ปิดอุปกรณ์
+- **กราฟประวัติ** — แสดงอุณหภูมิและความชื้นย้อนหลัง 30 ค่า
+- **สถานะ Online / Offline** — เป็น Offline เมื่อไม่ได้รับข้อมูลจากบอร์ดเกิน 15 วินาที
 
 ## API
 
 Base URL: `http://localhost:4000/api/v1`
 
-| Method | Path                 | Description                                  |
-| ------ | -------------------- | -------------------------------------------- |
-| GET    | `/devices/status`    | Device info, latest reading, history, online |
-| POST   | `/devices/telemetry` | Uplink from the board                        |
-| PATCH  | `/devices/control`   | Set relay state `ON` / `OFF`                 |
+| Method | Path                 | คำอธิบาย                                            |
+| ------ | -------------------- | --------------------------------------------------- |
+| GET    | `/devices/status`    | ข้อมูลอุปกรณ์, ค่าล่าสุด, ประวัติ และสถานะออนไลน์ |
+| POST   | `/devices/telemetry` | บอร์ดส่งข้อมูลเซนเซอร์ขึ้นมา                        |
+| PATCH  | `/devices/control`   | สั่งรีเลย์เป็น `ON` / `OFF`                         |
 
 ```bash
-# Board uplink
+# บอร์ดส่งข้อมูลขึ้นมา
 curl -X POST http://localhost:4000/api/v1/devices/telemetry \
   -H "Content-Type: application/json" \
   -d '{"device_id":"esp32-node-01","temp":27.4,"humidity":61.2}'
 # → 201 {"accepted":true,"telemetry":{...},"command":{"status":"OFF"}}
 
-# Dashboard control
+# Dashboard สั่งเปิดรีเลย์
 curl -X PATCH http://localhost:4000/api/v1/devices/control \
   -H "Content-Type: application/json" \
   -d '{"device_id":"esp32-node-01","status":"ON"}'
 
-# Status (+ last 30 readings)
+# ดูสถานะ (+ ค่าย้อนหลัง 30 ค่า)
 curl "http://localhost:4000/api/v1/devices/status?device_id=esp32-node-01&history=30"
 ```
 
-Invalid payloads (wrong types, humidity outside 0–100 %, temperature outside the −40…125 °C sensor range)
-are rejected with `400` and a list of `details`.
+payload ที่ไม่ถูกต้อง เช่น ชนิดข้อมูลผิด, ความชื้นนอกช่วง 0–100 % หรืออุณหภูมินอกช่วงที่เซนเซอร์วัดได้ (−40…125 °C)
+จะถูกปฏิเสธด้วย `400` พร้อมรายการ `details` ที่บอกว่าผิดตรงไหน
 
-## Data model
+## โครงสร้างข้อมูล
 
-- **Device** — `device_id` (unique), `name`, `status` (`ON`|`OFF`), `updatedAt`
-- **TelemetryLog** — `device_id`, `temp`, `humidity`, `timestamp` — indexed on `{ device_id, timestamp: -1 }`
+- **Device** — `device_id` (ไม่ซ้ำ), `name`, `status` (`ON`|`OFF`), `updatedAt`
+- **TelemetryLog** — `device_id`, `temp`, `humidity`, `timestamp` — มี index `{ device_id, timestamp: -1 }`
