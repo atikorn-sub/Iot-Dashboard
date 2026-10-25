@@ -1,0 +1,21 @@
+{
+  "name": "iot-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mini IoT Dashboard & Device Management Platform (MVP)",
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev -w @iot/backend\" \"npm run dev -w @iot/frontend\"",
+    "dev:backend": "npm run dev -w @iot/backend",
+    "dev:frontend": "npm run dev -w @iot/frontend",
+    "simulate": "npm run simulate -w @iot/backend",
+    "build": "npm run build -w @iot/backend && npm run build -w @iot/frontend",
+    "typecheck": "npm run typecheck -w @iot/backend && npm run typecheck -w @iot/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

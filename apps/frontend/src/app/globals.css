@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+body {
+  background-image: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 55%);
+  min-height: 100vh;
+}
+
+/* ── Board simulation animations ───────────────────── */
+
+/* Relay armature snaps with a slight overshoot, like a real contact */
+.relay-armature {
+  transition: transform 140ms cubic-bezier(0.34, 1.8, 0.64, 1);
+}
+
+@keyframes fan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.fan-spinning {
+  animation: fan-spin 0.45s linear infinite;
+}
+
+/* Electrons flowing through the closed load circuit */
+@keyframes current-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.current-flow {
+  stroke-dasharray: 4 6;
+  animation: current-flow 0.5s linear infinite;
+}
+
+/* One sensor read travelling from the DHT22 to the ESP32 */
+@keyframes data-pulse {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+.data-pulse {
+  stroke-dasharray: 12 200;
+  animation: data-pulse 0.7s ease-in forwards;
+}
+
+@keyframes led-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.led-blink {
+  animation: led-blink 0.8s ease-out 0.6s both;
+}
+
+@keyframes wifi-wave {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.wifi-wave {
+  opacity: 0;
+  animation: wifi-wave 1.4s ease-out 0.7s both;
+}
+
+@keyframes click-pop {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+.click-pop {
+  animation: click-pop 0.7s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-spinning,
+  .current-flow,
+  .data-pulse,
+  .wifi-wave,
+  .click-pop {
+    animation: none;
+  }
+}
