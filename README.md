@@ -8,6 +8,38 @@
 | Backend  | Node.js, Express, TypeScript                                  |
 | Database | MongoDB (Mongoose)                                            |
 
+## ภาพตัวอย่าง
+
+![Dashboard โหมดมืด](docs/screenshots/01-dashboard-dark-en.png)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/06-greenhouse-too-hot.png" alt="โรงเรือนร้อนเกินไป พัดลมปิด" /></td>
+    <td width="50%"><img src="docs/screenshots/04-greenhouse-light.png" alt="เปิดพัดลมแล้ว อุณหภูมิกลับมาเหมาะสม" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>ร้อนเกินไป</b> (> 31 °C) — พัดลมปิด ผักเริ่มเหี่ยว</td>
+    <td align="center"><b>เปิดพัดลมจากเว็บ</b> — อุณหภูมิลดลงจนกลับมาเหมาะสม</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/05-circuit-dark.png" alt="มุมมองวงจร ESP32 รีเลย์ และพัดลม" /></td>
+    <td><img src="docs/screenshots/03-greenhouse-dark.png" alt="โรงเรือนตอนกลางคืน โหมดมืด" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>มุมมองวงจร</b> — DHT22 → ESP32 → Relay → พัดลม</td>
+    <td align="center"><b>โหมดมืด</b> — ฉากเปลี่ยนเป็นกลางคืน</td>
+  </tr>
+</table>
+
+<details>
+<summary>หน้าเต็มแบบภาษาไทย / โหมดสว่าง และมุมมองบนมือถือ</summary>
+
+![Dashboard ภาษาไทย โหมดสว่าง](docs/screenshots/02-dashboard-light-th.png)
+
+<img src="docs/screenshots/07-mobile-dark.png" alt="มุมมองบนมือถือ" width="320" />
+
+</details>
+
 ## สถาปัตยกรรม
 
 ```
