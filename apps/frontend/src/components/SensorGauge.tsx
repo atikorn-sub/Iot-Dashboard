@@ -20,8 +20,8 @@ export const SensorGauge = ({ label, value, unit, min, max, colorClass, icon }: 
   const filled = ratio * ARC_LENGTH;
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-      <div className="mb-2 flex w-full items-center justify-between text-sm text-slate-400">
+    <div className="flex flex-col items-center rounded-2xl border border-line bg-surface p-6 shadow-lg">
+      <div className="mb-2 flex w-full items-center justify-between text-sm text-muted">
         <span className="font-medium uppercase tracking-wider">{label}</span>
         <span aria-hidden>{icon}</span>
       </div>
@@ -35,7 +35,7 @@ export const SensorGauge = ({ label, value, unit, min, max, colorClass, icon }: 
             fill="none"
             strokeWidth="10"
             strokeLinecap="round"
-            className="stroke-slate-800"
+            className="stroke-track"
             strokeDasharray={`${ARC_LENGTH} ${CIRCUMFERENCE}`}
           />
           <circle
@@ -50,14 +50,14 @@ export const SensorGauge = ({ label, value, unit, min, max, colorClass, icon }: 
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-4xl font-semibold tabular-nums text-slate-100">
+          <span className="text-4xl font-semibold tabular-nums text-fg">
             {value === null ? '--' : value.toFixed(1)}
           </span>
-          <span className="text-sm text-slate-400">{unit}</span>
+          <span className="text-sm text-muted">{unit}</span>
         </div>
       </div>
 
-      <div className="mt-1 flex w-36 justify-between text-xs text-slate-500">
+      <div className="mt-1 flex w-36 justify-between text-xs text-subtle">
         <span>{min}</span>
         <span>{max}</span>
       </div>

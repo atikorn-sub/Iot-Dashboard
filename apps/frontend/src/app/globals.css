@@ -1,5 +1,41 @@
 @import 'tailwindcss';
 
+/* Class-based dark mode: <html class="dark"> is toggled by PreferencesProvider */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic color tokens → utilities like bg-surface, text-muted, border-line, stroke-track */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-track: var(--track);
+}
+
+:root {
+  --page: #f1f5f9;
+  --surface: #ffffff;
+  --line: #e2e8f0;
+  --fg: #0f172a;
+  --muted: #475569;
+  --subtle: #64748b;
+  --track: #e2e8f0;
+  color-scheme: light;
+}
+
+.dark {
+  --page: #020617;
+  --surface: rgb(15 23 42 / 0.6);
+  --line: #1e293b;
+  --fg: #f1f5f9;
+  --muted: #94a3b8;
+  --subtle: #64748b;
+  --track: #1e293b;
+  color-scheme: dark;
+}
+
 body {
   background-image: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 55%);
   min-height: 100vh;
@@ -88,7 +124,57 @@ body {
   animation: click-pop 0.7s ease-out forwards;
 }
 
+/* ── Greenhouse scene ──────────────────────────────── */
+
+/* Leaves bend in the fan's airflow, pivoting at the stem */
+@keyframes plant-sway {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(5deg);
+  }
+}
+.plant-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: plant-sway 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes airflow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+.airflow {
+  stroke-dasharray: 14 6;
+  animation: airflow 0.8s linear infinite;
+}
+
+@keyframes heat-wave {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+.heat-wave {
+  animation: heat-wave 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .plant-sway,
+  .airflow,
+  .heat-wave,
   .fan-spinning,
   .current-flow,
   .data-pulse,

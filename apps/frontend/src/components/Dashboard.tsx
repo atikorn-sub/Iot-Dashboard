@@ -1,14 +1,16 @@
 'use client';
 
-import { BoardSimulation } from '@/components/BoardSimulation';
 import { DeviceHeader } from '@/components/DeviceHeader';
+import { DeviceVisual } from '@/components/DeviceVisual';
 import { RelayToggle } from '@/components/RelayToggle';
 import { SensorGauge } from '@/components/SensorGauge';
 import { TelemetryChart } from '@/components/TelemetryChart';
+import { usePreferences } from '@/components/PreferencesProvider';
 import { useDeviceStatus } from '@/hooks/useDeviceStatus';
 import { API_URL, DEVICE_ID, POLL_INTERVAL_MS } from '@/lib/api';
 
 export const Dashboard = () => {
+  const { t } = usePreferences();
   const { data, error, loading, toggling, lastPolledAt, setStatus } = useDeviceStatus(DEVICE_ID, POLL_INTERVAL_MS);
 
   return (
@@ -16,15 +18,15 @@ export const Dashboard = () => {
       <DeviceHeader device={data?.device ?? null} online={data?.online ?? false} lastPolledAt={lastPolledAt} />
 
       {error && (
-        <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
-          Cannot reach API at <span className="font-mono">{API_URL}</span>: {error}
+        <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-600 dark:text-rose-300">
+          {t.apiError} <span className="font-mono">{API_URL}</span>: {error}
         </div>
       )}
 
       {loading && !data ? (
         <div className="grid gap-6 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-72 animate-pulse rounded-2xl bg-slate-900/60" />
+            <div key={i} className="h-72 animate-pulse rounded-2xl bg-surface" />
           ))}
         </div>
       ) : (
@@ -32,7 +34,7 @@ export const Dashboard = () => {
           <section className="grid gap-6 lg:grid-cols-12">
             <div className="order-2 grid gap-6 sm:grid-cols-2 lg:order-1 lg:col-span-3 lg:grid-cols-1">
               <SensorGauge
-                label="Temperature"
+                label={t.temperature}
                 value={data?.latest?.temp ?? null}
                 unit="°C"
                 min={0}
@@ -41,7 +43,7 @@ export const Dashboard = () => {
                 icon="🌡️"
               />
               <SensorGauge
-                label="Humidity"
+                label={t.humidity}
                 value={data?.latest?.humidity ?? null}
                 unit="%RH"
                 min={0}
@@ -51,7 +53,7 @@ export const Dashboard = () => {
               />
             </div>
             <div className="order-1 lg:order-2 lg:col-span-6">
-              <BoardSimulation
+              <DeviceVisual
                 status={data?.device.status ?? 'OFF'}
                 latest={data?.latest ?? null}
                 online={data?.online ?? false}
@@ -72,9 +74,7 @@ export const Dashboard = () => {
         </>
       )}
 
-      <footer className="mt-auto pt-4 text-center text-xs text-slate-600">
-        Next.js · Express · MongoDB — polling every {POLL_INTERVAL_MS / 1000}s
-      </footer>
+      <footer className="mt-auto pt-4 text-center text-xs text-subtle">{t.footer(POLL_INTERVAL_MS / 1000)}</footer>
     </main>
   );
 };
